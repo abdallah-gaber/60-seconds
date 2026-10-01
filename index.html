@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1f2a" />
+  <meta name="robots" content="noindex,nofollow,noarchive" />
+  <title>60 ثانية</title>
+  <style>
+    :root{
+      --bg:#07171f; --card:#0d2632; --soft:#123746; --text:#f7fbfc; --muted:#b8c9cf;
+      --accent:#79d7d0; --accent2:#ffd37a;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:radial-gradient(circle at 15% 10%,#123747 0,#07171f 38%,#041017 100%);color:var(--text);font-family:Tahoma,Arial,sans-serif}
+    body{min-height:100svh;display:flex;justify-content:center}
+    button{font:inherit}
+    .app{width:min(100%,520px);min-height:100svh;display:flex;flex-direction:column;padding:18px 16px 22px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .brand{font-size:13px;color:var(--muted)}
+    .progress{height:6px;flex:1;background:#ffffff12;border-radius:99px;overflow:hidden}
+    .bar{height:100%;width:5%;background:linear-gradient(90deg,var(--accent),#8ca9ff);border-radius:99px;transition:width .45s ease}
+    .card{margin:auto 0;background:linear-gradient(180deg,#102b38dd,#0a202bdd);border:1px solid #ffffff12;border-radius:26px;padding:24px 18px;box-shadow:0 24px 70px #0007;backdrop-filter:blur(12px);animation:in .35s ease}
+    @keyframes in{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+    .emoji{font-size:46px;line-height:1;margin-bottom:16px}
+    h1,h2{margin:0 0 10px;line-height:1.4}
+    h1{font-size:30px}
+    h2{font-size:24px}
+    p{font-size:17px;line-height:1.8;color:var(--muted);margin:8px 0}
+    .tiny{font-size:13px;opacity:.78}
+    .answers{display:grid;gap:10px;margin-top:22px}
+    .choice,.primary{width:100%;border:0;border-radius:17px;padding:15px 16px;cursor:pointer;transition:.18s ease}
+    .choice{background:#ffffff0d;color:var(--text);border:1px solid #ffffff13;text-align:right}
+    .choice:active{transform:scale(.985);background:#ffffff18}
+    .primary{background:linear-gradient(100deg,var(--accent),#8bdcc0);color:#06202a;font-weight:700;text-align:center;margin-top:18px}
+    .note{margin-top:16px;padding:12px 14px;border-radius:14px;background:#ffffff0a;color:#dce9ec;font-size:15px;line-height:1.7}
+    .photo-wrap{border-radius:22px;overflow:hidden;margin:-6px -2px 16px;position:relative;background:#0b1b22;aspect-ratio:4/5}
+    .photo{width:100%;height:100%;object-fit:cover;display:block;animation:zoom 4.5s ease both}
+    @keyframes zoom{from{transform:scale(1.03)}to{transform:scale(1.09)}}
+    .photo-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,#06131ccb 100%)}
+    .photo-step{position:absolute;bottom:14px;right:14px;background:#07171fbd;border:1px solid #ffffff22;padding:7px 10px;border-radius:99px;font-size:12px}
+    .loader{display:flex;gap:8px;justify-content:center;margin:28px 0 8px}
+    .loader i{width:10px;height:10px;background:var(--accent);border-radius:50%;animation:b 1s infinite alternate}
+    .loader i:nth-child(2){animation-delay:.2s}.loader i:nth-child(3){animation-delay:.4s}
+    @keyframes b{to{opacity:.2;transform:translateY(-8px)}}
+    .reveal{background:linear-gradient(160deg,#fff8e3,#e8fffb);color:#09232d}
+    .reveal p{color:#36515a}
+    .big{font-size:38px;font-weight:800;line-height:1.35;margin:6px 0}
+    .hotel{font-size:21px;font-weight:800;margin:12px 0 2px}
+    .confetti{font-size:34px;letter-spacing:6px;text-align:center;margin:2px 0 12px}
+    .footer{text-align:center;color:#78919a;font-size:11px;margin-top:18px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">60 ثانية</div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+  </div>
+  <main id="screen"></main>
+  <div class="footer">جاوبي بسرعة… أول إحساس غالبًا هو الصح 😉</div>
+</div>
+
+<script>
+const S=document.getElementById('screen'), B=document.getElementById('bar');
+let step=0, picks=[];
+const imgOverview='https://bynder.onthebeach.co.uk/cdn-cgi/image/width%3D1400%2Cquality%3D80%2Cfit%3Dcover%2Cformat%3Dauto/asset/6b32c441-f88c-43a6-b917-50747e453d60/default/-Seven-Seas-Jolie-Bay-20-04.jpg';
+const imgAqua='https://fileservice.sevenseashotels.com/files/bg/resources/img/9ebb4ebd-6c76-4543-92d1-dfe99c513f14.JPG';
+const imgPool='https://fileservice.sevenseashotels.com/files/md/resources/img/0515d3b8-1973-403e-9156-ff4dda57ce3b.JPG';
+
+function progress(n){B.style.width=Math.max(5,Math.min(100,n))+'%'}
+function card(inner,cls=''){S.innerHTML='<section class="card '+cls+'">'+inner+'</section>'}
+function choices(arr){return '<div class="answers">'+arr.map((x,i)=>'<button class="choice" onclick="window.pick('+i+')">'+x+'</button>').join('')+'</div>'}
+function q(emoji,title,body,arr,after){
+  step++; progress(step*10);
+  card('<div class="emoji">'+emoji+'</div><h2>'+title+'</h2><p>'+body+'</p>'+choices(arr));
+  window.pick=i=>{picks.push(i); after(i)};
+}
+function start(){
+  step=0;picks=[];progress(5);
+  card('<div class="emoji">👀</div><h1>عندي اختبار صغير ليكي</h1><p>مدته أقل من دقيقة. مفيش إجابة صح أو غلط… بس لازم تختاري بسرعة ومن غير تفكير كتير.</p><div class="note">وفي الآخر قوليلي طلعلك إيه 😄</div><button class="primary" onclick="q1()">يلا نبدأ</button>');
+}
+function q1(){
+  q('🧠','اليومين دول… إيه أكتر حاجة نفسك فيها؟','اختاري أقرب إحساس ليكي دلوقتي:',[
+    '😴 أنام وأفصل ومحدش يطلب مني حاجة',
+    '🌊 أشوف بحر وأروق دماغي',
+    '🚗 أغيّر جو وأخرج من الروتين',
+    '❤️ أقضي وقت حلو معاكم من غير دوشة الحياة'
+  ],i=>{
+    const r=[
+      'واضح إن البطارية بتقول 1% 😅 بس النوم لوحده مش كفاية… محتاجين Reset كامل.',
+      'أووه… البحر دخل بدري في الاختيارات 👀 هنعتبر إننا مشوفناش حاجة.',
+      'تمام. تغيير الجو أخد نقطة قوية جدًا.',
+      'دي إجابة حلوة… وخلّت الاختبار ياخد اتجاه معين شوية ❤️'
+    ][i];
+    reply(r,q2);
+  });
+}
+function q2(){
+  q('✨','لو عندك يومين أو تلاتة خارجين من الحساب…','إيه شكل الفصل المثالي؟',[
+    '🏠 هدوء وراحة وبس',
+    '🍽️ أكل حلو وخدمة ومفيش طبخ ولا ترتيب',
+    '🏖️ شمس ومية وكرسي أقعد عليه بالساعات',
+    '🎡 مكان الأولاد ينبسطوا فيه وإحنا كمان'
+  ],i=>{
+    const r=[
+      'الهدوء مهم… بس بما إننا بنحلم، خلينا نزوده شوية 😌',
+      'ممتاز. مفيش طبخ ومفيش dishes… الاختبار بيقول إن ده شرط أساسي 😂',
+      'واضح إننا بنتحرك ناحية اتجاه مائي جدًا 🌊',
+      'تمام… يعني مش عايزين مكان للكبار بس. اتسجلت ✅'
+    ][i];
+    reply(r,q3);
+  });
+}
+function q3(){
+  q('🎯','اختاري أقرب حاجة','لو لقينا مكان فيه الحاجة دي، يبقى واخد كام نقطة؟',[
+    '🏊 حمامات سباحة',
+    '🛝 ألعاب مائية',
+    '🏝️ شاطئ رملي',
+    '🍹 أكل وشرب من غير ما نشيل هم',
+    '😌 مكان هادي ومريح',
+    '👨‍👩‍👧‍👦 ينفع للعيلة والأولاد'
+  ],()=>reply('تمام… كده الصورة بدأت تبان أكتر مما توقعت 👀',q4));
+}
+function q4(){
+  q('🪄','آخر اختيار قبل النتيجة','إيه اللي يخليكي تقولي: «آه… أنا محتاجة ده فعلًا»؟',[
+    'إن المكان نفسه يشرح النفس',
+    'إن الأولاد يلاقوا حاجات يعملوها',
+    'إننا نبقى كلنا سوا وبعيد عن الروتين',
+    'بصراحة؟ التلاتة مع بعض 😄'
+  ],()=>analyze());
+}
+function reply(text,next){
+  progress(step*10+4);
+  card('<div class="emoji">👌</div><h2>اختيار مثير للاهتمام…</h2><div class="note">'+text+'</div><button class="primary" id="n">كمّلي</button>');
+  document.getElementById('n').onclick=next;
+}
+function analyze(){
+  progress(54);
+  card('<div class="emoji">🔎</div><h2>بنحلل اختياراتك…</h2><p>راحة؟ موجودة.<br>مَيّة؟ واضحة جدًا 😂<br>عيلة وأولاد؟ شرط أساسي.</p><div class="loader"><i></i><i></i><i></i></div><p class="tiny" style="text-align:center">لقينا Match قوي جدًا…</p>');
+  setTimeout(()=>photo1(),2100);
+}
+function photoCard(src,num,title,body,opts,next){
+  progress(58+num*8);
+  card('<div class="photo-wrap"><img class="photo" referrerpolicy="no-referrer" src="'+src+'" alt=""><div class="photo-shade"></div><div class="photo-step">صورة '+num+' من 3</div></div><h2>'+title+'</h2><p>'+body+'</p>'+choices(opts));
+  window.pick=i=>next(i);
+}
+function photo1(){
+  photoCard(imgPool,1,'طب إيه رأيك في البداية دي؟','مش هقولك المكان فين لسه 😏 بس ده جزء منه.',[
+    '😍 مريح أوي',
+    '👀 حلو… كمّلي',
+    '☀️ أيوه كده إحنا بنتكلم'
+  ],()=>photo2());
+}
+function photo2(){
+  photoCard(imgAqua,2,'وطبعًا في جزء صغير كده… 😄','لو حد صغير عندنا شاف الصورة دي، غالبًا الموضوع خلص.',[
+    '😂 سيف هيعيش هنا',
+    '🛝 حلوة جدًا',
+    '😏 بدأت أشك إن الاختبار مرتب'
+  ],()=>photo3());
+}
+function photo3(){
+  photoCard(imgOverview,3,'والصورة الكاملة تقريبًا…','بحر + Pool + Aqua + مكان للعيلة كلها.',[
+    '❤️ عاجبني جدًا',
+    '🧳 أنا موافقة… فين المكان؟',
+    '😂 خلاص يا عم قول النتيجة'
+  ],()=>preReveal());
+}
+function preReveal(){
+  progress(90);
+  card('<div class="emoji">✅</div><h2>النتيجة طلعت واضحة جدًا</h2><p>بناءً على اختياراتك… المكان ده مناسب جدًا ليكي ولينا كلنا.</p><div class="note">بس في معلومة صغيرة الاختبار مخبيها عنك لحد دلوقتي 👀</div><button class="primary" onclick="reveal1()">إيه هي؟</button>');
+}
+function reveal1(){
+  progress(96);
+  card('<div class="emoji">🤫</div><h2>الموضوع مش ترشيح لمكان نروحه «في يوم من الأيام»…</h2><p>ولا أنا باعتلك اللعبة عشان أعرف رأيك وخلاص.</p><button class="primary" onclick="finalReveal()">طيب؟ 👀</button>');
+}
+function finalReveal(){
+  progress(100);
+  card('<div class="confetti">🎉 🧳 🌊</div><div class="big">إحنا رايحين المكان ده فعلًا ❤️</div><p>مش اقتراح… ومش هنقعد ندور ونقارن.</p><div class="hotel">Seven Seas Jolie Bay</div><p><b>سوما باي — كمان أسبوع.</b></p><div class="note" style="background:#09232d0d;color:#24434c">بعد الفترة اللي فاتت… أعتقد إننا كلنا نستاهل كام يوم حلوين سوا.<br><br><b>يلا جهزي الشنط 🧳❤️</b></div><button class="primary" onclick="location.reload()">أعيد اللعبة من الأول 😄</button>','reveal');
+}
+start();
+</script>
+</body>
+</html>
